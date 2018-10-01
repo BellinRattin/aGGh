@@ -1,0 +1,13 @@
+## Interface: 80000
+## Title: ain't GGonna happen
+## Notes: No more gg
+## Author: BellinRattin
+## Version: 1.0.0
+## SavedVariables: aGGhDB
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+
+aGGh.lua
