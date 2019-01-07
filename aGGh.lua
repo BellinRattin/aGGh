@@ -3,43 +3,37 @@
 -- a BR addon          --
 -- All Rights Reserved --
 -------------------------
-aGGh = LibStub("AceAddon-3.0"):NewAddon("aGGh")
+local name, addon = ...
+
+local f = CreateFrame("Frame")
 
 local tostring = tostring
 
 local settingsDefaults = {
-	global = {
-		chatChannels = {
-			CHAT_MSG_GUILD = true,
-			CHAT_MSG_RAID = true,
-			CHAT_MSG_PARTY = true,
-			CHAT_MSG_WHISPER = true,
-			CHAT_MSG_SAY = true,
-			CHAT_MSG_YELL = true,
-			CHAT_MSG_CHANNEL = true,
-		},
-		chatMessages = {
-			gg = true,
-			gz = true,
-		}
+	["chatChannels"] = {
+		["CHAT_MSG_GUILD"] = true,
+		["CHAT_MSG_RAID"] = true,
+		["CHAT_MSG_PARTY"] = true,
+		["CHAT_MSG_WHISPER"] = true,
+		["CHAT_MSG_SAY"] = true,
+		["CHAT_MSG_YELL"] = true,
+		["CHAT_MSG_CHANNEL"] = true,
+	},
+	["chatMessages"] = {
+		["gg"] = true,
+		["gz"] = true,
 	}
 }
 
-function aGGh:OnInitialize()
-	DEFAULT_CHAT_FRAME:AddMessage("aGGh loaded")
-	self.db = LibStub("AceDB-3.0"):New("aGGhDB", settingsDefaults, true)
-	DEFAULT_CHAT_FRAME:AddMessage("aaa "..tostring(self.db.global.chatMessages.gg))
+
+local activeFilters = {}
+
+function f:ADDON_LOADED(...)
+	--DEFAULT_CHAT_FRAME:AddMessage("aGGh loaded")
+	activeFilters = aGGhDB or settingsDefaults -- change to read from savedVariables
+	aGGhDB = activeFilters
 	self:setFilters()
 end
-
-function aGGh:OnEnable()
-	
-end
-
-function aGGh:OnDisable()
-
-end
-
 
 local function ggFilter(self, event, msg, author, ... )
 	if msg=="gg" or msg == "GG" or msg == "Gg" or msg == "gG" then
@@ -53,22 +47,27 @@ local function gzFilter(self, event, msg, author, ... )
 end
 
 local filterTable = {
-	gg = ggFilter,
-	gz = gzFilter,
+	["gg"] = ggFilter,
+	["gz"] = gzFilter,
 }
 
-function aGGh:setFilters()
-	for mes,value in pairs(self.db.global.chatMessages) do
+function f:setFilters()
+	for mes,value in pairs(activeFilters.chatMessages) do
 		if value then 
-			for channel,isTrue in pairs(self.db.global.chatChannels) do
+			for channel,isTrue in pairs(activeFilters.chatChannels) do
 				if isTrue then
-					if tostring(mes) == "gg" then
-						ChatFrame_AddMessageEventFilter(tostring(channel), ggFilter)
-					elseif tostring(mes) == "gz" then
-						ChatFrame_AddMessageEventFilter(tostring(channel), gzFilter)
-					end
+					ChatFrame_AddMessageEventFilter(tostring(channel), filterTable[tostring(mes)])
 				end
 			end
 		end
 	end
 end
+
+f:RegisterEvent("ADDON_LOADED")
+f:SetScript("OnEvent", function(self, event, ...)
+	if not self[event] then
+		return 
+	end
+
+	self[event](self, ...)
+end)
