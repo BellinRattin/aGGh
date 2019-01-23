@@ -83,8 +83,7 @@ local patterns = {
 }
 
 local function PatternFilter(self, event, msg, author,...)
-	-- define pattern, based on settings
-	local set = settings[tostring(event)]
+	local set = settings["channels"][tostring(event)]
 	if not set["gg"] then
 		if not set["gz"] then
 			return false
@@ -165,13 +164,16 @@ function f:CreateOptionPanel()
 			else
 				checkbox:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 20, -5)
 			end
+
 			checkbox:SetScript("OnClick", function(self, button, down)
 				settings["channels"][chans[i]][messa[j]] = self:GetChecked() and true or false
-				if settings["channels"][chans[i]][messa[j]] then
-					ChatFrame_AddMessageEventFilter(chans[i], filterTable[messa[j]])
-				else
-					ChatFrame_RemoveMessageEventFilter(chans[i], filterTable[messa[j]])
-				end
+				
+				--if settings["channels"][chans[i]][messa[j]] then
+				--	ChatFrame_AddMessageEventFilter(chans[i], filterTable[messa[j]])
+				--else
+				--	ChatFrame_RemoveMessageEventFilter(chans[i], filterTable[messa[j]])
+				--end
+				
 			end)
 
 			-- TODO remove this 
@@ -179,7 +181,11 @@ function f:CreateOptionPanel()
 
 			if settings["channels"][chans[i]][messa[j]] then 
 				checkbox:SetChecked(true)
-				ChatFrame_AddMessageEventFilter(chans[i], filterTable[messa[j]])
+			--	ChatFrame_AddMessageEventFilter(chans[i], filterTable[messa[j]])
+			end
+
+			if j < 2 then
+				ChatFrame_AddMessageEventFilter(chans[i], PatternFilter)
 			end
 		end
 	end
