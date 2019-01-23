@@ -7,7 +7,7 @@ local addonName, addonTable = ...
 
 local f = CreateFrame("Frame")
 
-local tostring = tostring
+local tostring , stringFind = tostring, string.find
 
 local messa = {"gg", "gz",}
 local chans = {"CHAT_MSG_GUILD", "CHAT_MSG_RAID", "CHAT_MSG_PARTY", "CHAT_MSG_WHISPER",
@@ -65,17 +65,6 @@ function f:ADDON_LOADED(name)
 	end
 end
 
-local function ggFilter(self, event, msg, author, ... )
-	if msg=="gg" or msg == "GG" or msg == "Gg" or msg == "gG" then
-		return true
-	end
-end
-local function gzFilter(self, event, msg, author, ... )
-	if msg=="gz" or msg == "GZ" or msg == "gZ" or msg == "Gz" then
-		return true
-	end
-end
-
 local patterns = {
 	["gg"] = "%f[%a][gG][gG]+%f[%A]",
 	["gz"] = "%f[%a][gG][zZ]+%f[%A]",
@@ -88,21 +77,16 @@ local function PatternFilter(self, event, msg, author,...)
 		if not set["gz"] then
 			return false
 		else
-			return string.find(msg, patterns.gz)
+			return stringFind(msg, patterns.gz)
 		end
 	else
 		if not set["gz"] then
-			return string.find(msg, patterns.gg)
+			return stringFind(msg, patterns.gg)
 		else
-			return string.find(msg, patterns.mix)
+			return stringFind(msg, patterns.mix)
 		end
 	end
 end
-
-local filterTable = {
-	["gg"] = ggFilter,
-	["gz"] = gzFilter,
-}
 
 f:RegisterEvent("ADDON_LOADED")
 f:SetScript("OnEvent", function(self, event, ...)
@@ -167,21 +151,12 @@ function f:CreateOptionPanel()
 
 			checkbox:SetScript("OnClick", function(self, button, down)
 				settings["channels"][chans[i]][messa[j]] = self:GetChecked() and true or false
-				
-				--if settings["channels"][chans[i]][messa[j]] then
-				--	ChatFrame_AddMessageEventFilter(chans[i], filterTable[messa[j]])
-				--else
-				--	ChatFrame_RemoveMessageEventFilter(chans[i], filterTable[messa[j]])
-				--end
-				
 			end)
 
-			-- TODO remove this 
-			checkbox.tooltipText = "culo chi legge"
+			--checkbox.tooltipText = "TEST TOOLTIP"
 
 			if settings["channels"][chans[i]][messa[j]] then 
 				checkbox:SetChecked(true)
-			--	ChatFrame_AddMessageEventFilter(chans[i], filterTable[messa[j]])
 			end
 
 			if j < 2 then
