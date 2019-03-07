@@ -5,7 +5,9 @@
 -------------------------
 local addonName, addonTable = ...
 
-local f = CreateFrame("Frame")
+local addonFrames = {}
+
+addonFrames.addon = CreateFrame("Frame")
 
 local tostring , stringFind = tostring, string.find
 
@@ -90,7 +92,7 @@ local function InitDB()
 	aGGhDB = settings
 end
 
-function f:ADDON_LOADED(name)
+function addonFrames.addon:ADDON_LOADED(name)
 	if name == addonName then
 		--settings = aGGhDB or DBDefaults
 		--aGGhDB = settings
@@ -129,22 +131,117 @@ local function PatternFilter(self, event, msg, author,...)
 	return bol
 end
 
-f:RegisterEvent("ADDON_LOADED")
-f:SetScript("OnEvent", function(self, event, ...)
+addonFrames.addon:RegisterEvent("ADDON_LOADED")
+addonFrames.addon:SetScript("OnEvent", function(self, event, ...)
 	if not self[event] then
 		return 
 	end
 	self[event](self, ...)
 end)
 
+---- aceConfig setting -- TEST
+
+local myOptionTable = {
+	type = "group",
+	args = {
+		ggOptions = {
+			type = "group",
+			args = {
+				gg_guild = {
+					name = "guild",
+					type = "toggle",
+					desc = "hide gg from guild chat",
+				},
+				gg_raid = {
+					name = "raid",
+					type = "toggle",
+					desc = "hide gg from raid chat",
+				},
+				gg_party = {
+					name = "party",
+					type = "toggle",
+					desc = "hide gg from prty chat",
+				},
+				gg_whisper = {
+					name = "whisper",
+					type = "toggle",
+					desc = "hide gg from whisper chat",
+				},
+				gg_say = {
+					name = "say",
+					type = "toggle",
+					desc = "hide gg from say chat",
+				},
+				gg_yell = {
+					name = "yell",
+					type = "toggle",
+					desc = "hide gg from yell chat",
+				},
+				gg_channel = {
+					name = "others",
+					type = "toggle",
+					desc = "hide gg from other channels",
+				},
+			},
+		},
+		gzOptions = {
+			type = "group",
+			--get = function(),
+			--set = ,
+			args = {
+				gg_guild = {
+					name = "guild",
+					type = "toggle",
+					desc = "hide gg from guild chat",
+				},
+				gg_raid = {
+					name = "raid",
+					type = "toggle",
+					desc = "hide gg from raid chat",
+				},
+				gg_party = {
+					name = "party",
+					type = "toggle",
+					desc = "hide gg from prty chat",
+				},
+				gg_whisper = {
+					name = "whisper",
+					type = "toggle",
+					desc = "hide gg from whisper chat",
+				},
+				gg_say = {
+					name = "say",
+					type = "toggle",
+					desc = "hide gg from say chat",
+				},
+				gg_yell = {
+					name = "yell",
+					type = "toggle",
+					desc = "hide gg from yell chat",
+				},
+				gg_channel = {
+					name = "others",
+					type = "toggle",
+					desc = "hide gg from other channels",
+				},
+			},
+		},
+		countOptions = {
+			type = "group",
+			args = {
+			},
+		},
+	},
+}
+
 ------------------------------------------ Settings ------------------------------------------
-function f:CreateOptionPanel()
-	local optionPanel = CreateFrame("Frame", "aGGhOptionPanel", InterfaceOptionsFramePanelContainer)
+function addonFrames.addon:CreateOptionPanel()
+	local optionPanel = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
 	optionPanel.name = "ain't GGonna happen"
 
 	local tmpT = {}
 	for j=1,#messa do
-		local header = CreateFrame("Frame", messa[j].."Header", optionPanel)
+		local header = CreateFrame("Frame", nil, optionPanel)
 
 		if j == 1 then 
 			header:SetPoint("TOPLEFT", optionPanel, "TOPLEFT", 0, -10)
@@ -175,13 +272,16 @@ function f:CreateOptionPanel()
 		header.right:SetTexCoord(0.81, 0.94, 0.5, 1)
 	
 		for i=1,#chans do
-			local checkbox = CreateFrame("CheckButton", messa[j]..nameTable[chans[i]].."Checkbox", optionPanel, "InterfaceOptionsCheckButtonTemplate")
+			local checkbox = CreateFrame("CheckButton", nil, optionPanel, "InterfaceOptionsCheckButtonTemplate")
+			checkbox.label = checkbox:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
+			checkbox.label:SetPoint("LEFT", checkbox, "RIGHT")
+
 			local k = (j*10)+i
 			tmpT[k] = checkbox
 			if not (chans[i]=="CHAT_MSG_CHANNEL")  then
-				_G[checkbox:GetName().."Text"]:SetText(nameTable[chans[i]].." chat")
+				checkbox.label:SetText(nameTable[chans[i]].." chat")
 			else
-				_G[checkbox:GetName().."Text"]:SetText("other "..nameTable[chans[i]])
+				checkbox.label:SetText("other "..nameTable[chans[i]])
 			end
 
 			if i >1 then
@@ -206,7 +306,7 @@ function f:CreateOptionPanel()
 		end
 	end
 
-	local header = CreateFrame("Frame", "statsHeader", optionPanel)
+	local header = CreateFrame("Frame", nil, optionPanel)
 
 	header:SetPoint("TOPLEFT", optionPanel, "TOPLEFT", 0, -250)
 	header:SetPoint("TOPRIGHT", optionPanel, "TOPRIGHT", 0, -250)
